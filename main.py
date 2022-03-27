@@ -41,3 +41,23 @@ def get_average_rating(movie_id):
 
     return round(rating_total/total_num_ratings, 3)
 
+#gets list of movie ids of certain genre
+def get_movies_from_genre(genre):
+    genre_movies = movie_df[movie_df[genre] == 1]
+    lst = genre_movies.index.tolist()
+    return lst
+
+lst = get_movies_from_genre('Adventure')
+print(lst)
+print(len(lst))
+
+#get list of movies in order of best to worst average rating from given ids
+def get_rated_movie_list(movie_ids):
+    given_movies = movie_df.loc[movie_ids,:]
+    for id in movie_ids:
+        given_movies.at[id,'Average Rating'] = get_average_rating(id)
+    sorted_movies = given_movies.sort_values(by=['Average Rating'], ascending=False)
+    return sorted_movies
+
+print(get_rated_movie_list(lst))
+
