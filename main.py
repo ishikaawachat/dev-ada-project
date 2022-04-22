@@ -33,9 +33,9 @@ def get_movie_ids(user_id):
 def get_movie_name(movie_id):
     return movie_df.loc[movie_id, 'movie title']
 
-#gets average rating of given movie
-def get_average_rating(movie_id):
-    this_movie_ratings = rating_df[rating_df['item id'] == movie_id]
+#gets average rating of given movie from given ratings
+def get_average_rating(movie_id, ratings):
+    this_movie_ratings = ratings[ratings['item id'] == movie_id]
     rating_total = this_movie_ratings['rating'].sum()
     total_num_ratings = len(this_movie_ratings.index)
 
@@ -52,12 +52,25 @@ print(lst)
 print(len(lst))
 
 #get list of movies in order of best to worst average rating from given ids
-def get_rated_movie_list(movie_ids):
+def get_rated_movie_list(movie_ids, ratings):
     given_movies = movie_df.loc[movie_ids,:]
     for id in movie_ids:
-        given_movies.at[id,'Average Rating'] = get_average_rating(id)
+        given_movies.at[id,'Average Rating'] = get_average_rating(id, ratings)
     sorted_movies = given_movies.sort_values(by=['Average Rating'], ascending=False)
     return sorted_movies
 
 print(get_rated_movie_list(lst))
 
+#get movies based on user stats
+def find_movies_from_user(age, gender, occupation, zipcode):
+    users = user_df
+    if gender != None:
+        users = users[users['gender'] == gender]
+    if occupation != None:
+        users = users[users['occupation'] == occupation]
+    if age != None:
+        users = users[(users['age'] > age - 5) | (users['age'] < age + 5)]
+    ratings = rating_df.loc(users.index)
+    return get_rated_movie_list(ratings['item id'].tolist())
+
+print(find_movies_from_user(20, 'F', 'student', 0))
