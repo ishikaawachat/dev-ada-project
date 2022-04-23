@@ -98,5 +98,5 @@ def get_genre_movies(genre):
         #json[order] = movie_info
         order += 1
     json["movies"] = lst
-    return jsonify(json), 200
+    return jsonify(lst), 200
 

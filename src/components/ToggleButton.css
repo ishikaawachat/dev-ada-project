@@ -3,3 +3,16 @@
     grid-template-columns: repeat(5,1fr);
     grid-template-rows: repeat(4,1fr);
 }
+
+.line p {
+    margin: 8px;
+    padding: 8px;
+    font-size: 20px;
+    display: inline-block;
+}
+
+
+.genre {
+    font-style: italic;
+    font-family: "Georgia";
+}

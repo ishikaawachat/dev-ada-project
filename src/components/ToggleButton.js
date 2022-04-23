@@ -13,23 +13,21 @@ export const ToggleButton = () => {
 
     const [data, setData] = useState([{}])
     const getList = (genre) => {
-        const param = {"genre": genre};
-        const options = {
-            method: 'GET',
-            body: JSON.stringify(param)
-        };
-    
-        fetch("/", options).then(
+        try{
+        fetch(`/${genre}`).then(
                 res => res.json()
             ).then(
                 data => {
                     setData(data)
                     console.log(data)
                 });
+        } catch (err) {
+            console.error(err);
+        }
     };
 
-    useEffect(() => {
-        getList()
+    useEffect((genre) => {
+        getList(genre)
     }, [clicked])
     
 
@@ -39,12 +37,6 @@ export const ToggleButton = () => {
             background-color: "#24069c";
         `
     }`
-
-    if (data) {
-        data.map((lst, i) => {
-            return <div>{i}</div>
-        });
-    }
     
 
     return (
@@ -61,7 +53,23 @@ export const ToggleButton = () => {
             ))}
         </div>
 
-        
+        <div>
+            <h2 class="genre">{clicked}</h2>
+            <h3>We recommend...</h3>
+        </div>
+
+        <div class="line">
+            <p>Movie Title</p>
+            <p>Average Rating</p>
+        </div>
+        <div>
+            {data.map((movie) => (
+                <div class="line">
+                <p key={movie.order}>{movie.title}</p>
+                <p key={movie.order}>{movie.rating}</p>
+                </div>
+            ))}
+        </div>
         
 
         </div>
