@@ -18,7 +18,4 @@
   color: #61dafb;
 }
 
-.button-row {
-  display: "grid";
-  grid-template-columns: "1fr 1fr 1fr 1fr";
-}
+

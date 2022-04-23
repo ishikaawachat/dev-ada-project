@@ -1,6 +1,11 @@
 #this is where we will try to do stuff
 
+from typing import OrderedDict
 import pandas as pd
+from flask import Flask, render_template, request, jsonify
+import requests
+
+app = Flask(__name__)
 
 #Read movie data
 movie_info_labels = ["movie id","movie title","release date","video release date","IMDb URL","unknown",
@@ -51,15 +56,15 @@ lst = get_movies_from_genre('Adventure')
 print(lst)
 print(len(lst))
 
-#get list of movies in order of best to worst average rating from given ids
-def get_rated_movie_list(movie_ids, ratings):
+#get df of movies in order of best to worst average rating from given ids
+def get_rated_movies(movie_ids, ratings):
     given_movies = movie_df.loc[movie_ids,:]
     for id in movie_ids:
         given_movies.at[id,'Average Rating'] = get_average_rating(id, ratings)
     sorted_movies = given_movies.sort_values(by=['Average Rating'], ascending=False)
     return sorted_movies
 
-print(get_rated_movie_list(lst))
+print(get_rated_movies(lst, rating_df))
 
 #get movies based on user stats
 def find_movies_from_user(age, gender, occupation, zipcode):
@@ -71,6 +76,27 @@ def find_movies_from_user(age, gender, occupation, zipcode):
     if age != None:
         users = users[(users['age'] > age - 5) | (users['age'] < age + 5)]
     ratings = rating_df.loc(users.index)
-    return get_rated_movie_list(ratings['item id'].tolist())
+    return get_rated_movies(ratings['item id'].tolist())
 
-print(find_movies_from_user(20, 'F', 'student', 0))
+#print(find_movies_from_user(20, 'F', 'student', 0))
+
+@app.route('/<genre>', methods=["GET"])
+def get_genre_movies(genre):
+    if genre not in movie_df.columns:
+        return "Genre not found", 404
+    movies = get_movies_from_genre(genre)
+    rated_movies = get_rated_movies(movies, rating_df)
+    json = OrderedDict()
+    lst = []
+    order = 1
+    for i,row in rated_movies.iterrows():
+        movie_info = {}
+        movie_info["order"] = order
+        movie_info["title"] = row["movie title"]
+        movie_info["rating"] = row["Average Rating"]
+        lst.append(movie_info)
+        #json[order] = movie_info
+        order += 1
+    json["movies"] = lst
+    return jsonify(json), 200
+
