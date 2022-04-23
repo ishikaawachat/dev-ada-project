@@ -5,12 +5,18 @@
 }
 
 .line p {
-    margin: 8px;
+    margin: 8px 90px 8px 60px;
     padding: 8px;
     font-size: 20px;
     display: inline-block;
 }
 
+.label p {
+    font-weight: bold;
+    margin: 0px 50px 50px 80px;
+    display: inline-block;
+    font-size: 25px;
+}
 
 .genre {
     font-style: italic;

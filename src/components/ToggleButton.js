@@ -9,7 +9,7 @@ import styled from "styled-components";
 
 export const ToggleButton = () => {
     const genres = ["Action", "Adventure", "Animation", "Children's", "Comedy", "Crime", "Documentary", "Drama", "Fantasy", "Film-Noir", "Horror", "Musical", "Mystery", "Romance", "Sci-Fi", "Thriller", "War", "Western", "Other"];
-    const [clicked, setClicked] = useState(genres[0]);
+    const [clicked, setClicked] = useState(null);
 
     const [data, setData] = useState([{}])
     const getList = (genre) => {
@@ -38,7 +38,19 @@ export const ToggleButton = () => {
         `
     }`
     
+    const labels = () => {
+        if (clicked != null) {
+            return <div>
+                <h2 class="genre">{clicked}</h2>
+                <h3>We recommend...</h3>
 
+                <div class="label">
+                <p>Movie Title</p>
+                <p>Average Rating</p>
+                </div>
+            </div>;
+        }
+    }
     return (
         <div>
         <div className="grid">
@@ -53,15 +65,8 @@ export const ToggleButton = () => {
             ))}
         </div>
 
-        <div>
-            <h2 class="genre">{clicked}</h2>
-            <h3>We recommend...</h3>
-        </div>
+        {labels()}
 
-        <div class="line">
-            <p>Movie Title</p>
-            <p>Average Rating</p>
-        </div>
         <div>
             {data.map((movie) => (
                 <div class="line">

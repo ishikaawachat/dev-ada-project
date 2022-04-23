@@ -47,14 +47,12 @@ def get_average_rating(movie_id, ratings):
     return round(rating_total/total_num_ratings, 3)
 
 #gets list of movie ids of certain genre
-def get_movies_from_genre(genre):
-    genre_movies = movie_df[movie_df[genre] == 1]
+def get_movies_from_genre(movies,genre):
+    genre_movies = movies[movies[genre] == 1]
     lst = genre_movies.index.tolist()
     return lst
 
-lst = get_movies_from_genre('Adventure')
-print(lst)
-print(len(lst))
+lst = get_movies_from_genre(movie_df,'Adventure')
 
 #get df of movies in order of best to worst average rating from given ids
 def get_rated_movies(movie_ids, ratings):
@@ -64,27 +62,32 @@ def get_rated_movies(movie_ids, ratings):
     sorted_movies = given_movies.sort_values(by=['Average Rating'], ascending=False)
     return sorted_movies
 
-print(get_rated_movies(lst, rating_df))
 
 #get movies based on user stats
-def find_movies_from_user(age, gender, occupation, zipcode):
+def find_movies_from_user(movies, age, gender, occupation):
     users = user_df
     if gender != None:
-        users = users[users['gender'] == gender]
+        test = users[users['gender'] == gender]
+        if len(test.index) > 0:
+            users = test
     if occupation != None:
-        users = users[users['occupation'] == occupation]
+        test = users[users['occupation'] == occupation]
+        if len(test.index) > 0:
+            users = test
     if age != None:
-        users = users[(users['age'] > age - 5) | (users['age'] < age + 5)]
-    ratings = rating_df.loc(users.index)
-    return get_rated_movies(ratings['item id'].tolist())
+        test = users[(users['age'] > int(age) - 10) | (users['age'] < int(age) + 10)]
+        if len(test.index) > 0:
+            users = test
+    ratings = rating_df.loc[users.index]
+    return get_rated_movies(movies, ratings)
 
-#print(find_movies_from_user(20, 'F', 'student', 0))
+#print(find_movies_from_user(40, 'F', 'writer'))
 
 @app.route('/<genre>', methods=["GET"])
 def get_genre_movies(genre):
     if genre not in movie_df.columns:
         return "Genre not found", 404
-    movies = get_movies_from_genre(genre)
+    movies = get_movies_from_genre(movie_df,genre)
     rated_movies = get_rated_movies(movies, rating_df)
     json = OrderedDict()
     lst = []
@@ -100,3 +103,25 @@ def get_genre_movies(genre):
     json["movies"] = lst
     return jsonify(lst), 200
 
+
+@app.route('/<age>/<gender>/<occupation>/<genre>', methods=["GET"])
+def get_customized_movie(age,gender,occupation,genre):
+    if genre not in movie_df.columns:
+        return "Genre not found", 404
+
+    specific_movies = get_movies_from_genre(movie_df,genre)
+    movies = find_movies_from_user(specific_movies, age,gender,occupation)
+    
+    json = OrderedDict()
+    lst = []
+    order = 1
+    for i,row in movies.iterrows():
+        movie_info = {}
+        movie_info["order"] = order
+        movie_info["title"] = row["movie title"]
+        movie_info["rating"] = row["Average Rating"]
+        lst.append(movie_info)
+        #json[order] = movie_info
+        order += 1
+    json["movies"] = lst
+    return jsonify(lst), 200
